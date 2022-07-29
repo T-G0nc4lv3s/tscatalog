@@ -12,8 +12,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.thiagosantana.tscatalog.dto.CategoryDTO;
 import com.thiagosantana.tscatalog.dto.ProductDTO;
+import com.thiagosantana.tscatalog.entities.Category;
 import com.thiagosantana.tscatalog.entities.Product;
+import com.thiagosantana.tscatalog.repositories.CategoryRepository;
 import com.thiagosantana.tscatalog.repositories.ProductRepository;
 import com.thiagosantana.tscatalog.services.exceptions.DatabaseException;
 import com.thiagosantana.tscatalog.services.exceptions.ResourceNotFoundException;
@@ -23,6 +26,9 @@ public class ProductService {
 
 	@Autowired
 	private ProductRepository repository;
+	
+	@Autowired
+	private CategoryRepository categoryRepository;
 	
 	@Transactional(readOnly = true)
 	public Page<ProductDTO> findAllPaged(PageRequest pageRequest){	
@@ -41,7 +47,7 @@ public class ProductService {
 	public ProductDTO insert(ProductDTO dto) {
 		
 		Product entity = new Product();
-		//entity.setName(dto.getName());
+		copyDtoToEntity(entity, dto);
 		entity = repository.save(entity);
 		
 		return new ProductDTO(entity);
@@ -51,7 +57,7 @@ public class ProductService {
 	public ProductDTO update(Long id, ProductDTO dto) {
 		try {
 			Product entity = repository.getReferenceById(id);
-			//entity.setName(dto.getName());
+			copyDtoToEntity(entity, dto);
 			entity = repository.save(entity);
 			return new ProductDTO(entity);
 		}
@@ -72,4 +78,19 @@ public class ProductService {
 		}
 	}
 	
+	private void copyDtoToEntity(Product entity, ProductDTO dto) {
+		
+		entity.setName(dto.getName());
+		entity.setDescription(dto.getDescription());
+		entity.setDate(dto.getDate());
+		entity.setImgUrl(dto.getImgUrl());
+		entity.setPrice(dto.getPrice());
+		
+		entity.getCategories().clear();
+		
+		for (CategoryDTO catDto : dto.getCategories()) {
+			Category category = categoryRepository.getReferenceById(catDto.getId());
+			entity.getCategories().add(category);
+		}
+	}
 }

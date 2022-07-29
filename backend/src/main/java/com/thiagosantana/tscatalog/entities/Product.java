@@ -97,6 +97,10 @@ public class Product implements Serializable{
 	public Instant getDate() {
 		return date;
 	}
+	
+	public void setDate(Instant date) {
+		this.date = date;
+	}
 
 	public Set<Category> getCategories() {
 		return categories;
@@ -118,4 +122,5 @@ public class Product implements Serializable{
 		Product other = (Product) obj;
 		return Objects.equals(id, other.id);
 	}
+
 }
